@@ -7,45 +7,41 @@ const md5 = require("md5");
 
 // login authenticate
 router.post("/", async (req, res) => {
+	console.log("hitted");
+	const { userName, password } = req.body;
+	const passwordMd5 = md5(password);
 
-  const { userName, password } = req.body;
-  const passwordMd5 = md5(password);
+	const conn = await db.getConnection();
 
-  const conn = await db.getConnection();
-  
-  try {
-    const [result] = await conn.query(
-      `select * from sicar.usuario 
+	try {
+		const [result] = await conn.query(
+			`select * from sicar.usuario 
         where 
         usuario = ? and
         password = ? `,
-      [userName, passwordMd5]
-    );
+			[userName, passwordMd5]
+		);
 
+		if (result.length > 0) {
+			const myResult = result[0];
 
-    if (result.length > 0) {
-      const myResult = result[0];
+			// CREATE TOKEN
+			const token = createTokens(myResult);
 
-      // CREATE TOKEN
-      const token = createTokens(myResult);
-
-      // create cookie
-      // cookie name , token that we storing in cookie
-      res.cookie("access_token", token, {
-        httpOnly: true,
-        maxAge: 86400000,
-        // secure: true ?????
-      });
-      res.send({ cookie: "cookie created", logged: true });
-
-     
-
-    } else {
-      res.send({ message: "Usuario o contraseña incorrectos" });
-    }
-  } catch (error) {
-    console.error(error);
-  }
+			// create cookie
+			// cookie name , token that we storing in cookie
+			res.cookie("access_token", token, {
+				httpOnly: true,
+				maxAge: 86400000,
+				// secure: true ?????
+			});
+			res.send({ cookie: "cookie created", logged: true });
+		} else {
+			res.send({ message: "Usuario o contraseña incorrectos" });
+		}
+	} catch (error) {
+		console.error(error);
+	}
 });
 
 module.exports = router;

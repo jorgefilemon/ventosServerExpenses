@@ -15,6 +15,7 @@ const lastTicketRoute = require("./routes/lastTicket");
 const loginRoute = require("./routes/login");
 const corteRoute = require("./routes/corte");
 const revisarCorteRoute = require("./routes/revisarCorte");
+const expenseRoute = require("./routes/expense");
 
 app.use(express.json());
 // why?
@@ -38,7 +39,6 @@ const db = mysql.createPool({
 	// multipleStatements: false, // optional, i had it on, but change queries so i can have it off.
 });
 
-console.log("hola probando supervisor!");
 // login authenticate
 app.use("/login", loginRoute);
 // vefify user with jwt
@@ -385,6 +385,8 @@ app.use("/lastTicket", lastTicketRoute);
 app.use("/revisarCorte", revisarCorteRoute);
 // hace el corte
 app.use("/corte", corteRoute);
+// expense
+app.use("/expense", expenseRoute);
 
 app.listen(process.env.NODEPORT, () =>
 	console.log(
